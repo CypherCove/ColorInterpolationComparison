@@ -4,5 +4,5 @@ eclipse.project.name = appName + '-core'
 dependencies {
 	api "com.badlogicgames.gdx:gdx:$gdxVersion"
 	api "com.kotcrab.vis:vis-ui:$visUiVersion"
-	implementation "com.cyphercove.gdxtween:gdxtween:0.1.0"
+	implementation "com.cyphercove.gdxtween:gdxtween:0.1.1"
 }
