@@ -11,8 +11,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Widget;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.OrderedMap;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.cyphercove.gdxtween.graphics.ColorSpace;
 import com.cyphercove.gdxtween.graphics.GtColor;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.color.BasicColorPicker;
@@ -29,6 +32,24 @@ public class ColorInterpolationComparison extends ApplicationAdapter {
     Color secondColor = new Color(Color.YELLOW);
     Color tmpColor = new Color();
     Stage stage;
+
+    private static final ObjectMap<String, ColorSpace> choices = new OrderedMap<>();
+    static {
+        choices.put("RGB", ColorSpace.Rgb);
+        choices.put("Linear RGB", ColorSpace.DegammaRgb);
+        choices.put("Euclidean HCL", ColorSpace.EuclideanHcl);
+//		choices.put("Linear Euclidean HCL", ColorSpace.DegammaEuclideanHcl);
+        choices.put("Lab", ColorSpace.DegammaLab);
+        choices.put("Partial IPT (L'M'S')", ColorSpace.DegammaLmsCompressed);
+        choices.put("IPT", ColorSpace.DegammaIpt);
+        choices.put("Lch", ColorSpace.DegammaLch);
+        choices.put("HSL", ColorSpace.Hsl);
+//		choices.put("Linear HSL", ColorSpace.DegammaHsl);
+        choices.put("HCL", ColorSpace.Hcl);
+//		choices.put("Linear HCL", ColorSpace.DegammaHcl);
+        choices.put("HSV", ColorSpace.Hsv);
+//		choices.put("Linear HSV", ColorSpace.DegammaHsv);
+    }
 
     @Override
     public void create () {
@@ -60,10 +81,9 @@ public class ColorInterpolationComparison extends ApplicationAdapter {
         table.add(firstColorPicker).center().pad(20);
 
         Table innerTable = new Table(VisUI.getSkin());
-        String[] types = { "Rgb", "LinearRgb", "Xyz", "Hsv", "Lab", "Lch" };
-        for (int i = 0; i < types.length; i++) {
-            innerTable.add(types[i]).center();
-            innerTable.add(new ColorTransition(i)).growX().height(50).space(10);
+        for (ObjectMap.Entry<String, ColorSpace> entry : choices) {
+            innerTable.add(entry.key).center();
+            innerTable.add(new ColorTransition(entry.value)).growX().height(30).space(10);
             innerTable.row();
         }
         table.add(innerTable).grow();
@@ -81,10 +101,10 @@ public class ColorInterpolationComparison extends ApplicationAdapter {
     }
 
     private class ColorTransition extends Widget {
-        int spaceType;
+        ColorSpace colorSpace;
 
-        public ColorTransition(int spaceType) {
-            this.spaceType = spaceType;
+        public ColorTransition(ColorSpace colorSpace) {
+            this.colorSpace = colorSpace;
         }
 
         @Override
@@ -94,26 +114,7 @@ public class ColorInterpolationComparison extends ApplicationAdapter {
             for (int i = 0; i < segments; i++) {
                 float progress = (float)i / (segments - 1);
                 tmpColor.set(firstColor);
-                switch (spaceType) {
-                    case 0:
-                        GtColor.lerpRgb(tmpColor, secondColor, progress);
-                        break;
-                    case 1:
-                        GtColor.lerpLinearRgb(tmpColor, secondColor, progress);
-                        break;
-                    case 2:
-                        GtColor.lerpXyz(tmpColor, secondColor, progress);
-                        break;
-                    case 3:
-                        GtColor.lerpHsv(tmpColor, secondColor, progress);
-                        break;
-                    case 4:
-                        GtColor.lerpLab(tmpColor, secondColor, progress);
-                        break;
-                    case 5:
-                        GtColor.lerpLch(tmpColor, secondColor, progress);
-                        break;
-                }
+                GtColor.lerp(tmpColor, secondColor, progress, colorSpace, false);
                 batch.setColor(tmpColor);
                 batch.draw(white, getX() + segmentWidth * i, getY(), segmentWidth, getHeight());
             }
