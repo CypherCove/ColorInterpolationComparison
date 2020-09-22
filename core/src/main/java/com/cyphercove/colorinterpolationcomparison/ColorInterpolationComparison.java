@@ -7,10 +7,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Widget;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.OrderedMap;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -26,34 +26,40 @@ public class ColorInterpolationComparison extends ApplicationAdapter {
     Pixmap whitePixmap;
     Texture white;
     Viewport viewport = new ScreenViewport();
-    BasicColorPicker firstColorPicker;
-    BasicColorPicker secondColorPicker;
+    BasicColorPicker2 firstColorPicker;
+    BasicColorPicker2 secondColorPicker;
     Color firstColor = new Color(Color.BLUE);
     Color secondColor = new Color(Color.YELLOW);
     Color tmpColor = new Color();
     Stage stage;
+    PlatformResolver platformResolver;
+    boolean isDarkBackground = true;
 
     private static final ObjectMap<String, ColorSpace> choices = new OrderedMap<>();
     static {
         choices.put("RGB", ColorSpace.Rgb);
         choices.put("Linear RGB", ColorSpace.DegammaRgb);
-        choices.put("Euclidean HCL", ColorSpace.EuclideanHcl);
-//		choices.put("Linear Euclidean HCL", ColorSpace.DegammaEuclideanHcl);
         choices.put("Lab", ColorSpace.DegammaLab);
-        choices.put("Partial IPT (L'M'S')", ColorSpace.DegammaLmsCompressed);
+        choices.put("LMS Compressed", ColorSpace.DegammaLmsCompressed);
         choices.put("IPT", ColorSpace.DegammaIpt);
         choices.put("Lch", ColorSpace.DegammaLch);
         choices.put("HSL", ColorSpace.Hsl);
-//		choices.put("Linear HSL", ColorSpace.DegammaHsl);
         choices.put("HCL", ColorSpace.Hcl);
-//		choices.put("Linear HCL", ColorSpace.DegammaHcl);
         choices.put("HSV", ColorSpace.Hsv);
-//		choices.put("Linear HSV", ColorSpace.DegammaHsv);
+    }
+
+    public ColorInterpolationComparison() {
+        this(null);
+    }
+
+    public ColorInterpolationComparison(PlatformResolver platformResolver) {
+        this.platformResolver = platformResolver;
     }
 
     @Override
     public void create () {
         VisUI.load();
+        Gdx.graphics.setContinuousRendering(false);
         stage = new Stage(viewport);
 
         whitePixmap = new Pixmap(16, 16, Pixmap.Format.RGBA8888);
@@ -66,11 +72,14 @@ public class ColorInterpolationComparison extends ApplicationAdapter {
     }
 
     private void setupUI () {
+        VisUI.getSkin().get("default", Label.LabelStyle.class).fontColor.set(Color.GRAY);
+
         Table table = new Table();
         table.setFillParent(true);
         table.pad(15);
 
-        firstColorPicker = new BasicColorPicker();
+        firstColorPicker = new BasicColorPicker2();
+        firstColorPicker.setShowColorPreviews(false);
         firstColorPicker.setColor(firstColor);
         firstColorPicker.setListener(new ColorPickerAdapter() {
             @Override
@@ -88,7 +97,8 @@ public class ColorInterpolationComparison extends ApplicationAdapter {
         }
         table.add(innerTable).grow();
 
-        secondColorPicker = new BasicColorPicker();
+        secondColorPicker = new BasicColorPicker2();
+        secondColorPicker.setShowColorPreviews(false);
         secondColorPicker.setColor(secondColor);
         secondColorPicker.setListener(new ColorPickerAdapter() {
             @Override
@@ -97,6 +107,20 @@ public class ColorInterpolationComparison extends ApplicationAdapter {
             }
         });
         table.add(secondColorPicker).center().pad(20);
+
+        table.row().colspan(3);
+        final CheckBox checkBox = new CheckBox(" Dark mode", VisUI.getSkin());
+        checkBox.setChecked(isDarkBackground);
+        checkBox.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                isDarkBackground = checkBox.isChecked();
+                if (platformResolver != null) {
+                    platformResolver.setBodyBackgroundColor(Color.rgb888(isDarkBackground ? Color.BLACK : Color.WHITE));
+                }
+            }
+        });
+        table.add(checkBox).bottom().left();
         stage.addActor(table);
     }
 
@@ -128,6 +152,10 @@ public class ColorInterpolationComparison extends ApplicationAdapter {
 
     @Override
     public void render () {
+        if (isDarkBackground)
+            Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
+        else
+            Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act();
         stage.draw();

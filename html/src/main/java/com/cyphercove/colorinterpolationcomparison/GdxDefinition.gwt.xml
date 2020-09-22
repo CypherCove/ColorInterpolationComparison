@@ -6,6 +6,7 @@
 	<inherits name="com.cyphercove.colorinterpolationcomparison.ColorInterpolationComparison" />
 	<inherits name="com.kotcrab.vis.vis-ui" />
 	<inherits name="com.cyphercove.gdxtween" />
+	<inherits name='com.google.gwt.query.Query'/>
 	<entry-point class="com.cyphercove.colorinterpolationcomparison.gwt.GwtLauncher" />
 	<set-configuration-property name="gdx.assetpath" value="../assets" />
 	<set-configuration-property name="xsiframe.failIfScriptTag" value="FALSE"/>
