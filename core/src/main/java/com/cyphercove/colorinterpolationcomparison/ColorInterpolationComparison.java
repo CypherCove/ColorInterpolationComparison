@@ -55,18 +55,18 @@ public class ColorInterpolationComparison extends ApplicationAdapter {
             new Item("Lab", ColorSpace.DegammaLab, "Interpolates in CIELAB color space, which was designed " +
                     "for visually even intensity changes. Some color combinations may produce faint extra hues in the middle of the interpolation."),
             new Item("LMS Compressed", ColorSpace.DegammaLmsCompressed, "Interpolates in LMS space after " +
-                    "apply a gamma compression to produce extremely visually even blends. This space is and intermediate " +
-                    "stage of transforming an RGB value to IPT space."),
+                    "applying a gamma compression to produce extremely visually even blends. This space is an intermediate " +
+                    "stage of transforming RGB to IPT space."),
             new Item("IPT", ColorSpace.DegammaIpt, "Interpolates in IPT space, which produces extremely " +
                     "visually even blends."),
             new Item("Lch", ColorSpace.DegammaLch, "Interpolates in Lch space, a cylindrical transformation" +
                     " of CIELAB space. Hue is one of the dimensions, so it can produce unrelated intermediate hues."),
             new Item("HSL", ColorSpace.Hsl, "Interpolates in HSL space. This can produce unrelated " +
-                    "intermediate hues. Since saturation is independent of brightness in the definition of HSL, bright " +
-                    "colors can appear when blending between almost-white colors and gray-ish or dark colors."),
+                    "intermediate hues. Since saturation is independent of brightness in the definition of HSL, vividly hued " +
+                    "colors can appear when blending between near-white and near-black colors."),
             new Item("HCL", ColorSpace.Hcl, "Interpolates in HSL space using chroma instead of saturation, " +
-                    "which avoids the issue of unwanted intermediate bright color when blending between almost-white" +
-                    "colors and gray-ish or dark colors."),
+                    "which avoids the issue of vividly hued intermediate color when blending between near-white" +
+                    "and near-black colors."),
             new Item("HSV", ColorSpace.Hsv, "Interpolates in HSV space. This can produce unrelated intermediate hues.")
     };
 
